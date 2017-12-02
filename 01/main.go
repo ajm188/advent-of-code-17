@@ -15,16 +15,22 @@ func main() {
 
 	input = input[0:len(input)-1]
 
-	sum := 0
+	sum1 := 0
+	sum2 := 0
+	n := len(input)
 	for i, c := range input {
 		num, err := strconv.Atoi(string(c))
 		if err != nil {
 			panic(err)
 		}
-		j := (i + 1) % len(input)
+		j := (i + 1) % n
+		k := (i + (n / 2)) % n
 		if input[j] == c {
-			sum += num
+			sum1 += num
+		}
+		if input[k] == c {
+			sum2 += num
 		}
 	}
-	fmt.Println(sum)
+	fmt.Println(sum1, sum2)
 }
