@@ -44,11 +44,34 @@ func minMax(row []int) (min, max int) {
 	return
 }
 
-func checksum(matrix [][]int) int {
+func checksum1(matrix [][]int) int {
 	sum := 0
 	for _, row := range matrix {
 		min, max := minMax(row)
 		sum += (max - min)
+	}
+	return sum
+}
+
+func findDivisorPair(row []int) (int, int) {
+	for i, x := range row {
+		for j, y := range row {
+			if i == j || x < y {
+				continue
+			}
+			if x % y == 0 {
+				return x, y
+			}
+		}
+	}
+	return 1, 1
+}
+
+func checksum2(matrix [][]int) int {
+	sum := 0
+	for _, row := range matrix {
+		divisor, dividend := findDivisorPair(row)
+		sum += (divisor / dividend)
 	}
 	return sum
 }
@@ -62,5 +85,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(checksum(mat))
+	fmt.Println(checksum1(mat), checksum2(mat))
 }
