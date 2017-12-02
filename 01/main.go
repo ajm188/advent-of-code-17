@@ -13,7 +13,7 @@ func main() {
 		panic(err)
 	}
 
-	input = input[0:len(input)-1]
+	input = input[0 : len(input)-1]
 
 	sum1 := 0
 	sum2 := 0

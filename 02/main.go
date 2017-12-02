@@ -11,7 +11,7 @@ import (
 func toMatrix(input []byte) ([][]int, error) {
 	fields := strings.FieldsFunc(
 		string(input),
-		func (c rune) bool {
+		func(c rune) bool {
 			return c == '\n'
 		},
 	)
@@ -59,7 +59,7 @@ func findDivisorPair(row []int) (int, int) {
 			if i == j || x < y {
 				continue
 			}
-			if x % y == 0 {
+			if (x % y) == 0 {
 				return x, y
 			}
 		}
