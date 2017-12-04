@@ -94,11 +94,10 @@ func iterate(iterator func(Point, Grid) int, stop func(int) bool) (Point, Grid) 
 		}
 
 		val = iterator(p, grid)
+		grid[p] = val
 		if stop(val) {
 			break
 		}
-
-		grid[p] = val
 		p = move(p, direction)
 		movedPerSide++
 	}
