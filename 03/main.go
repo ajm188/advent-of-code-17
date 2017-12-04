@@ -77,7 +77,7 @@ func sideLength(ring int) int {
 }
 
 func iterate(iterator func(Point, Grid) int, stop func(int) bool) (Point, Grid) {
-	p := Point{0, 1}
+	p := Point{1, 0}
 	direction := UP
 	grid := initialGrid()
 	ring := 1
