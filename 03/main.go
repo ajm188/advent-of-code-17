@@ -18,85 +18,94 @@ const (
 	RIGHT
 )
 
+type Point struct{ x, y int }
+type Grid map[Point]int
+
 func turn(direction Direction) Direction {
 	return (direction + 1) % 4
 }
 
-func move(x, y int, direction Direction) (int, int) {
+func move(p Point, direction Direction) Point {
 	switch {
 	case direction == UP:
-		return x, y + 1
+		return Point{p.x, p.y + 1}
 	case direction == DOWN:
-		return x, y - 1
+		return Point{p.x, p.y - 1}
 	case direction == LEFT:
-		return x - 1, y
+		return Point{p.x - 1, p.y}
 	case direction == RIGHT:
-		return x + 1, y
+		return Point{p.x + 1, p.y}
 	}
 
-	return x, y
+	// this is an error case, but let's make the compiler happy
+	return p
 }
 
-func ringNumber(n int) (ring int) {
-	ring = 0
-	for {
-		oddRing := (2 * ring) + 1
-		ringSize := oddRing * oddRing
-		if ringSize >= n {
-			return
+func initialGrid() Grid {
+	return map[Point]int{
+		Point{0, 0}: 1,
+	}
+}
+
+func neighbors(p Point) []Point {
+	return []Point{
+		Point{p.x, p.y + 1},
+		Point{p.x, p.y - 1},
+		Point{p.x + 1, p.y},
+		Point{p.x - 1, p.y},
+	}
+}
+
+func plus1(p Point, g Grid) int {
+	max := 0
+	for _, n := range neighbors(p) {
+		v, ok := g[n]
+		if ok && v > max {
+			max = v
 		}
-		ring++
 	}
-	return
+
+	return max + 1
 }
 
-func ringSize(r int) int {
-	odd := (2 * r) - 1
-	return odd * odd
+func sideLength(ring int) int {
+	return 2*ring + 1
 }
 
-func ringStart(ring int) int {
-	if ring == 0 {
-		return 1
-	}
-	prevRing := ring - 1
-	return (2*prevRing+1)*(2*prevRing+1) + 1
-}
-
-func location(val, ring int) (x, y int) {
-	x, y = ring, (-ring + 1)
-	sideLength := (2 * ring) + 1
-	i := ringStart(ring)
-	amountPerSide := 2
+func iterate(iterator func(Point, Grid) int, n int) (Point, Grid) {
+	p := Point{0, 1}
 	direction := UP
-	for i < val {
-		if amountPerSide == sideLength {
+	grid := initialGrid()
+	ring := 1
+	movedPerSide := 2
+
+	val := 1
+	for {
+		if movedPerSide == sideLength(ring) {
 			direction = turn(direction)
-			amountPerSide = 1
+			movedPerSide = 1
+			if direction == UP {
+				ring++
+			}
 		}
 
-		x, y = move(x, y, direction)
-		i++
-		amountPerSide++
-	}
+		val = iterator(p, grid)
+		if val >= n {
+			break
+		}
 
-	return
+		grid[p] = val
+		p = move(p, direction)
+		movedPerSide++
+	}
+	return p, grid
 }
 
-func dist(n int) int {
-	if n == 1 {
-		return 0
-	}
-	x, y := location(n, ringNumber(n))
-
-	dist := math.Abs(float64(x)) + math.Abs(float64(y))
-	return int(dist)
+func manhattan(p Point) int {
+	return int(math.Abs(float64(p.x)) + math.Abs(float64(p.y)))
 }
 
-// For ring N, where the origin is in ring 0:
-// - The ring begins at (N, (-N + 1))
-// - The ring contains (2N + 1) ^ 2 values
-// - Each side of the ring has length (2N + 1)
 func main() {
-	fmt.Println(dist(INPUT))
+	p, _ := iterate(plus1, INPUT)
+	fmt.Println(manhattan(p))
 }
