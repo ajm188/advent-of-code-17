@@ -84,15 +84,21 @@ func iterate(iterator func(Point, Grid) int, stop func(int) bool) (Point, Grid) 
 	movedPerSide := 2
 
 	val := 1
+	nextRing := false
 	for {
-		if movedPerSide == sideLength(ring) {
-			direction = turn(direction)
-			movedPerSide = 1
-			if direction == UP {
-				ring++
-			}
+		if nextRing {
+			direction = UP
+			nextRing = false
+			ring++
 		}
-
+		if movedPerSide == sideLength(ring) {
+			if direction == RIGHT {
+				nextRing = true
+			} else {
+				direction = turn(direction)
+			}
+			movedPerSide = 1
+		}
 		val = iterator(p, grid)
 		grid[p] = val
 		if stop(val) {
