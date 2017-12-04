@@ -72,6 +72,17 @@ func plus1(p Point, g Grid) int {
 	return max + 1
 }
 
+func sumNeighbors(p Point, g Grid) int {
+	sum := 0
+	for _, n := range neighbors(p) {
+		v, ok := g[n]
+		if ok {
+			sum += v
+		}
+	}
+	return sum
+}
+
 func sideLength(ring int) int {
 	return 2*ring + 1
 }
@@ -117,4 +128,6 @@ func manhattan(p Point) int {
 func main() {
 	p, _ := iterate(plus1, func(v int) bool { return v >= INPUT })
 	fmt.Println(manhattan(p))
+	p, g := iterate(sumNeighbors, func (v int) bool { return v > INPUT })
+	fmt.Println(g[p])
 }
