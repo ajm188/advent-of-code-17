@@ -53,6 +53,10 @@ func neighbors(p Point) []Point {
 		Point{p.x, p.y - 1},
 		Point{p.x + 1, p.y},
 		Point{p.x - 1, p.y},
+		Point{p.x + 1, p.y + 1},
+		Point{p.x + 1, p.y - 1},
+		Point{p.x - 1, p.y + 1},
+		Point{p.x - 1, p.y - 1},
 	}
 }
 
