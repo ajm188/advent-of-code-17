@@ -72,7 +72,7 @@ func sideLength(ring int) int {
 	return 2*ring + 1
 }
 
-func iterate(iterator func(Point, Grid) int, n int) (Point, Grid) {
+func iterate(iterator func(Point, Grid) int, stop func(int) bool) (Point, Grid) {
 	p := Point{0, 1}
 	direction := UP
 	grid := initialGrid()
@@ -90,7 +90,7 @@ func iterate(iterator func(Point, Grid) int, n int) (Point, Grid) {
 		}
 
 		val = iterator(p, grid)
-		if val >= n {
+		if stop(val) {
 			break
 		}
 
@@ -106,6 +106,6 @@ func manhattan(p Point) int {
 }
 
 func main() {
-	p, _ := iterate(plus1, INPUT)
+	p, _ := iterate(plus1, func(v int) bool { return v >= INPUT })
 	fmt.Println(manhattan(p))
 }
