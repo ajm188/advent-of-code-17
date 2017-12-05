@@ -69,4 +69,13 @@ func main() {
 		jumper.Next()
 	}
 	fmt.Println(jumper.Iterations)
+
+	jumper = NewJumper(
+		append([]int(nil), offsets...),
+		func(jump int) int { if jump >= 3 { return jump - 1 } else { return jump + 1 } },
+	)
+	for !jumper.Done() {
+		jumper.Next()
+	}
+	fmt.Println(jumper.Iterations)
 }
