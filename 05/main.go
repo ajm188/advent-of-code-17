@@ -12,13 +12,15 @@ type Jumper struct {
 	Iterations int
 	position int
 	offsets []int
+	jumpMod func(int) int
 }
 
-func NewJumper(offsets []int) *Jumper {
+func NewJumper(offsets []int, jumpMod func(int) int) *Jumper {
 	return &Jumper{
 		Iterations: 0,
 		position: 0,
 		offsets: offsets,
+		jumpMod: jumpMod,
 	}
 }
 
@@ -27,7 +29,7 @@ func (j *Jumper) Next() {
 	j.Iterations++
 
 	jump := j.offsets[j.position]
-	j.offsets[j.position]++
+	j.offsets[j.position] = j.jumpMod(jump)
 	j.position += jump
 }
 
@@ -59,7 +61,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	jumper := NewJumper(offsets)
+	jumper := NewJumper(offsets, func(jump int) int { return jump + 1 })
 	for !jumper.Done() {
 		jumper.Next()
 	}
