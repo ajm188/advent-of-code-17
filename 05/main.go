@@ -61,7 +61,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	jumper := NewJumper(offsets, func(jump int) int { return jump + 1 })
+	jumper := NewJumper(
+		append([]int(nil), offsets...),
+		func(jump int) int { return jump + 1 },
+	)
 	for !jumper.Done() {
 		jumper.Next()
 	}
