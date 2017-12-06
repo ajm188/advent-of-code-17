@@ -54,6 +54,15 @@ func stateAlreadySeen(m *MemoryBank, states []*MemoryBank) bool {
 	return false
 }
 
+func loopSize(m *MemoryBank, states []*MemoryBank) int {
+	for i, state := range states {
+		if m.Eq(state) {
+			return len(states) - i
+		}
+	}
+	return -1
+}
+
 func findMax(arr []int) (index int) {
 	if len(arr) == 0 {
 		return -1
@@ -104,4 +113,5 @@ func main() {
 		current = current.Next()
 	}
 	fmt.Println(current.Iterations)
+	fmt.Println(loopSize(current, iters))
 }
