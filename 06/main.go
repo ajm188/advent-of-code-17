@@ -36,6 +36,24 @@ func (m *MemoryBank) Next() *MemoryBank {
 	}
 }
 
+func (m *MemoryBank) Eq(other *MemoryBank) bool {
+	for i, v := range m.banks {
+		if other.banks[i] != v {
+			return false
+		}
+	}
+	return true
+}
+
+func stateAlreadySeen(m *MemoryBank, states []*MemoryBank) bool {
+	for _, state := range states {
+		if m.Eq(state) {
+			return true
+		}
+	}
+	return false
+}
+
 func findMax(arr []int) (index int) {
 	if len(arr) == 0 {
 		return -1
@@ -76,5 +94,14 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(banks)
+	current := NewMemoryBank(banks)
+	iters := make([]*MemoryBank, 0)
+	for {
+		if stateAlreadySeen(current, iters) {
+			break
+		}
+		iters = append(iters, current)
+		current = current.Next()
+	}
+	fmt.Println(current.Iterations)
 }
