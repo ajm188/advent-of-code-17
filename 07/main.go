@@ -40,6 +40,73 @@ func NewProgramFromLine(line string) (*Program, error) {
 	return program, nil
 }
 
+func (p *Program) IsBaseProgram() bool {
+	return len(p.SupportedPrograms) == 0
+}
+
+func (p *Program) IsBalanced(programs map[string]*Program) bool {
+	if p.IsBaseProgram() {
+		return true
+	}
+
+	weight := -1
+	for _, support := range p.SupportedPrograms {
+		program, _ := programs[support]
+		supportWeight := program.TotalWeight(programs)
+		if weight == -1 {
+			weight = supportWeight
+		} else if weight != supportWeight {
+			return false
+		}
+	}
+	return true
+}
+
+func (p *Program) TotalWeight(programs map[string]*Program) int {
+	weight := p.Weight
+	for _, support := range p.SupportedPrograms {
+		program, _ := programs[support]
+		weight += program.TotalWeight(programs)
+	}
+	return weight
+}
+
+func (p *Program) Balance(programs map[string]*Program) int {
+	if p.IsBaseProgram() {
+		return 0
+	}
+
+	programsByWeight := make(map[int][]*Program, len(p.SupportedPrograms))
+	for _, support := range p.SupportedPrograms {
+		program, _ := programs[support]
+		weight := program.TotalWeight(programs)
+		programsWithWeight, ok := programsByWeight[weight]
+		if !ok {
+			programsWithWeight = make([]*Program, 0, 1)
+		}
+		programsByWeight[weight] = append(programsWithWeight, program)
+	}
+	if len(programsByWeight) < 2 {
+		return 0
+	}
+
+	targetWeight := 0
+	var programToBalance *Program
+	for weight, plist := range programsByWeight {
+		if len(plist) != 1 {
+			targetWeight = weight
+			continue
+		}
+
+		programToBalance = plist[0]
+	}
+	if programToBalance.IsBalanced(programs) {
+		return targetWeight - programToBalance.TotalWeight(programs) + programToBalance.Weight
+	} else {
+		return programToBalance.Balance(programs)
+	}
+}
+
 func main() {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -79,4 +146,5 @@ func main() {
 		}
 	}
 	fmt.Println(topProgram.Name)
+	fmt.Println(topProgram.Balance(programs))
 }
