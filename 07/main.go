@@ -48,33 +48,35 @@ func main() {
 
 	isNewline := func(r rune) bool { return r == '\n' }
 	lines := strings.FieldsFunc(string(input), isNewline)
-	programs := make([]*Program, 0, len(lines))
+	programs := make(map[string]*Program, len(lines))
 	for _, line := range lines {
 		program, err := NewProgramFromLine(line)
 		if err != nil {
 			panic(err)
 		}
-		programs = append(programs, program)
+		programs[program.Name] = program
 	}
 
 	supportMap := make(map[string][]string, len(programs))
-	for _, program := range programs {
-		if _, ok := supportMap[program.Name]; !ok {
-			supportMap[program.Name] = []string{}
+	for name, program := range programs {
+		if _, ok := supportMap[name]; !ok {
+			supportMap[name] = []string{}
 		}
 		for _, supportedProgram := range program.SupportedPrograms {
 			dependencies, ok := supportMap[supportedProgram]
 			if !ok {
 				dependencies = make([]string, 0, 1)
 			}
-			supportMap[supportedProgram] = append(dependencies, program.Name)
+			supportMap[supportedProgram] = append(dependencies, name)
 		}
 	}
 
+	topProgram := nil
 	for name, dependencies := range supportMap {
 		if len(dependencies) == 0 {
-			fmt.Println(name)
+			topProgram = programs[name]
 			break
 		}
 	}
+	fmt.Println(topProgram.Name)
 }
