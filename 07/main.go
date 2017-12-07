@@ -29,7 +29,7 @@ func NewProgramFromLine(line string) (*Program, error) {
 		SupportedPrograms: make([]string, 0, len(fields)),
 	}
 	if len(fields) > 2 {
-		for _, field := range fields[2:len(fields)] {
+		for _, field := range fields[3:len(fields)] {
 			if strings.HasSuffix(field, ",") {
 				field = field[0:len(field)-1]
 			}
@@ -71,7 +71,7 @@ func main() {
 		}
 	}
 
-	topProgram := nil
+	var topProgram *Program
 	for name, dependencies := range supportMap {
 		if len(dependencies) == 0 {
 			topProgram = programs[name]
