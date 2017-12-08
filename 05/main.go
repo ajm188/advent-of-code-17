@@ -10,22 +10,24 @@ import (
 
 type Jumper struct {
 	Iterations int
-	position int
-	offsets []int
-	jumpMod func(int) int
+	position   int
+	offsets    []int
+	jumpMod    func(int) int
 }
 
 func NewJumper(offsets []int, jumpMod func(int) int) *Jumper {
 	return &Jumper{
 		Iterations: 0,
-		position: 0,
-		offsets: offsets,
-		jumpMod: jumpMod,
+		position:   0,
+		offsets:    offsets,
+		jumpMod:    jumpMod,
 	}
 }
 
 func (j *Jumper) Next() {
-	if j.Done() { return }
+	if j.Done() {
+		return
+	}
 	j.Iterations++
 
 	jump := j.offsets[j.position]
@@ -72,7 +74,13 @@ func main() {
 
 	jumper = NewJumper(
 		append([]int(nil), offsets...),
-		func(jump int) int { if jump >= 3 { return jump - 1 } else { return jump + 1 } },
+		func(jump int) int {
+			if jump >= 3 {
+				return jump - 1
+			} else {
+				return jump + 1
+			}
+		},
 	)
 	for !jumper.Done() {
 		jumper.Next()

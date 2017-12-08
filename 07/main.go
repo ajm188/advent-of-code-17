@@ -9,8 +9,8 @@ import (
 )
 
 type Program struct {
-	Name string
-	Weight int
+	Name              string
+	Weight            int
 	SupportedPrograms []string
 }
 
@@ -18,20 +18,20 @@ func NewProgramFromLine(line string) (*Program, error) {
 	fields := strings.Fields(line)
 	name := fields[0]
 	weightField := fields[1]
-	weight, err := strconv.Atoi(weightField[1:len(weightField)-1])
+	weight, err := strconv.Atoi(weightField[1 : len(weightField)-1])
 	if err != nil {
 		return nil, err
 	}
 
 	program := &Program{
-		Name: name,
-		Weight: weight,
+		Name:              name,
+		Weight:            weight,
 		SupportedPrograms: make([]string, 0, len(fields)),
 	}
 	if len(fields) > 2 {
 		for _, field := range fields[3:len(fields)] {
 			if strings.HasSuffix(field, ",") {
-				field = field[0:len(field)-1]
+				field = field[0 : len(field)-1]
 			}
 			program.SupportedPrograms = append(program.SupportedPrograms, field)
 		}

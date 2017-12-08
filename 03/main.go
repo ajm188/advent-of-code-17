@@ -128,6 +128,6 @@ func manhattan(p Point) int {
 func main() {
 	p, _ := iterate(plus1, func(v int) bool { return v >= INPUT })
 	fmt.Println(manhattan(p))
-	p, g := iterate(sumNeighbors, func (v int) bool { return v > INPUT })
+	p, g := iterate(sumNeighbors, func(v int) bool { return v > INPUT })
 	fmt.Println(g[p])
 }
