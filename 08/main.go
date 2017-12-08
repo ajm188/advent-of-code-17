@@ -131,10 +131,13 @@ func main() {
 		panic(err)
 	}
 	cpu := NewCPU()
+	max := math.Inf(-1)
 	for _, inst := range instructions {
 		if inst.Condition(cpu) {
 			inst.Operation(cpu)
 		}
+		max = math.Max(max, float64(cpu.LargestValue()))
 	}
 	fmt.Println(cpu.LargestValue())
+	fmt.Println(int(max))
 }
