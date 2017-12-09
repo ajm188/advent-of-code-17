@@ -20,8 +20,9 @@ func groupScore(text string) int {
 	return score
 }
 
-func cleanGarbage(text string) string {
-	buf := make([]byte, 0, len(text))
+func cleanGarbage(text string) (string, string) {
+	cleanBuf := make([]byte, 0, len(text))
+	garbageBuf := make([]byte, 0, len(text))
 	i := 0
 	garbage := false
 	for i < len(text) {
@@ -31,17 +32,19 @@ func cleanGarbage(text string) string {
 		} else if garbage {
 			if r == '>' {
 				garbage = false
+			} else {
+				garbageBuf = append(garbageBuf, r)
 			}
 		} else {
 			if r == '<' {
 				garbage = true
 			} else {
-				buf = append(buf, r)
+				cleanBuf = append(cleanBuf, r)
 			}
 		}
 		i++
 	}
-	return string(buf)
+	return string(cleanBuf), string(garbageBuf)
 }
 
 func main() {
@@ -50,6 +53,7 @@ func main() {
 		panic(err)
 	}
 
-	cleaned := cleanGarbage(string(input))
+	cleaned, garbage := cleanGarbage(string(input))
 	fmt.Println(groupScore(cleaned))
+	fmt.Println(len(garbage))
 }
