@@ -170,6 +170,37 @@ func shortestPath(source, destination *Point) []Direction {
 	return []Direction{}
 }
 
+func maxDisplacement(source *Point, directions []Direction, disp int) int {
+	current := source
+	visited := map[Point]bool{
+		*source: true,
+	}
+	i := 0
+	skip := disp
+	for i < len(directions) {
+		d := directions[i]
+		current = current.Move(d)
+		if _, seen := visited[*current]; seen {
+			i++
+			continue
+		}
+
+		visited[*current] = true
+		if skip > 0 {
+			skip--
+		} else {
+			path := shortestPath(source, current)
+			if len(path) > disp {
+				disp = len(path)
+			} else {
+				skip = disp - len(path)
+			}
+		}
+		i++
+	}
+	return disp
+}
+
 func main() {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -181,7 +212,7 @@ func main() {
 	}
 	origin := OriginPoint()
 	destination := followDirections(origin, directions)
-	fmt.Println(destination)
 	path := shortestPath(origin, destination)
 	fmt.Println(len(path))
+	fmt.Println(maxDisplacement(origin, directions, len(path)))
 }
