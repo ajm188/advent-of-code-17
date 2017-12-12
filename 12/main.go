@@ -62,4 +62,22 @@ func main() {
 		),
 	)
 	fmt.Println(len(programGroup("0", programs)))
+
+	pids := make([]string, 0, len(programs))
+	for pid, _ := range programs {
+		pids = append(pids, pid)
+	}
+	numGroups := 0
+	grouped := map[string]bool{}
+	for _, pid := range pids {
+		if _, inGroup := grouped[pid]; inGroup {
+			continue
+		}
+
+		numGroups++
+		for _, groupPID := range programGroup(pid, programs) {
+			grouped[groupPID] = true
+		}
+	}
+	fmt.Println(numGroups)
 }
