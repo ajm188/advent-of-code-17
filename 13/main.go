@@ -95,6 +95,19 @@ func makeLayers(lines []string) (map[int]*Layer, int, error) {
 	return layers, maxLayer, nil
 }
 
+func runGamut(firewall *Firewall, maxLayer int) (int, int) {
+	layer, timesCaught, severity := 0, 0, 0
+	for layer <= maxLayer {
+		if firewall.Caught(layer) {
+			severity += firewall.Severity(layer)
+			timesCaught++
+		}
+		firewall = firewall.Step()
+		layer++
+	}
+	return severity, timesCaught
+}
+
 func main() {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -111,13 +124,16 @@ func main() {
 		Layers: layers,
 	}
 
-	layer, severity := 0, 0
-	for layer <= maxLayer {
-		if firewall.Caught(layer) {
-			severity += firewall.Severity(layer)
+	severity, _ := runGamut(firewall, maxLayer)
+	fmt.Println(severity)
+	delay := 0
+	for {
+		_, timesCaught := runGamut(firewall, maxLayer)
+		if timesCaught == 0 {
+			break
 		}
 		firewall = firewall.Step()
-		layer++
+		delay++
 	}
-	fmt.Println(severity)
+	fmt.Println(delay)
 }
