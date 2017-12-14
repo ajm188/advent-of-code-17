@@ -72,3 +72,11 @@ func (hk *HashKnot) PinchTwist(length int) {
 	hk.index = (hk.index + hk.skipSize + length) % len(hk.Ring)
 	hk.skipSize++
 }
+
+func AsASCIICodes(str string) []int {
+	buf := make([]int, 0, len(str))
+	for _, v := range str {
+		buf = append(buf, int(v))
+	}
+	return buf
+}

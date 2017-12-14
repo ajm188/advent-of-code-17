@@ -25,14 +25,6 @@ func readLengths(str string, f func(rune) bool) ([]int, error) {
 	return lengths, nil
 }
 
-func asASCIICodes(str string) []int {
-	buf := make([]int, 0, len(str))
-	for _, v := range str {
-		buf = append(buf, int(v))
-	}
-	return buf
-}
-
 func isComma(r rune) bool {
 	return r == ','
 }
@@ -54,7 +46,7 @@ func main() {
 
 	hk = util.NewHashKnot()
 	lengths = append(
-		asASCIICodes(string(input[0:len(input)-1])),
+		util.AsASCIICodes(string(input[0:len(input)-1])),
 		[]int{17, 31, 73, 47, 23}...,
 	)
 	i := 0
