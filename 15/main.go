@@ -20,6 +20,18 @@ func readInitialValue(line string) (int, error) {
 	return strconv.Atoi(fields[len(fields)-1])
 }
 
+func step(val, factor int) int {
+	return (val * factor) % DIVISOR
+}
+
+func isLower16Match(a, b int) bool {
+	aBits := fmt.Sprintf("%.16b", a)
+	bBits := fmt.Sprintf("%.16b", b)
+	aLowerSixteen := aBits[len(aBits)-16:]
+	bLowerSixteen := bBits[len(bBits)-16:]
+	return aLowerSixteen == bLowerSixteen
+}
+
 func main() {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -38,15 +50,9 @@ func main() {
 
 	matches := 0
 	for i := 0; i < PAIRS; i++ {
-		genA = (genA * A_FACTOR) % DIVISOR
-		genB = (genB * B_FACTOR) % DIVISOR
-
-		aBits := fmt.Sprintf("%.16b", genA)
-		bBits := fmt.Sprintf("%.16b", genB)
-		aLowerSixteen := aBits[len(aBits)-16:]
-		bLowerSixteen := bBits[len(bBits)-16:]
-
-		if aLowerSixteen == bLowerSixteen {
+		genA = step(genA, A_FACTOR)
+		genB = step(genB, B_FACTOR)
+		if isLower16Match(genA, genB) {
 			matches++
 		}
 	}
