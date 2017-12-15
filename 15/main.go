@@ -13,7 +13,35 @@ const (
 	B_FACTOR = 48271
 	DIVISOR  = 2147483647
 	PAIRS    = 40000000
+	V2_PAIRS = 5000000
 )
+
+type V2Generator struct {
+	values        []int
+	factor        int
+	discriminator func(int) bool
+}
+
+func NewV2Generator(initialValue, factor int, discriminator func(int) bool) *V2Generator {
+	return &V2Generator{
+		values:        []int{initialValue},
+		factor:        factor,
+		discriminator: discriminator,
+	}
+}
+
+func (g *V2Generator) Last() int {
+	return g.values[len(g.values)-1]
+}
+
+func (g *V2Generator) Next() {
+	previousValue := g.Last()
+	next := step(previousValue, g.factor)
+	for !g.discriminator(next) {
+		next = step(next, g.factor)
+	}
+	g.values = append(g.values, next)
+}
 
 func readInitialValue(line string) (int, error) {
 	fields := strings.Fields(line)
@@ -48,6 +76,9 @@ func main() {
 		panic(err)
 	}
 
+	v2GenA := NewV2Generator(genA, A_FACTOR, func(i int) bool { return i%4 == 0 })
+	v2GenB := NewV2Generator(genB, B_FACTOR, func(i int) bool { return i%8 == 0 })
+
 	matches := 0
 	for i := 0; i < PAIRS; i++ {
 		genA = step(genA, A_FACTOR)
@@ -57,4 +88,15 @@ func main() {
 		}
 	}
 	fmt.Println(matches)
+
+	v2Matches := 0
+	for i := 0; i < V2_PAIRS; i++ {
+		v2GenA.Next()
+		v2GenB.Next()
+
+		if isLower16Match(v2GenA.Last(), v2GenB.Last()) {
+			v2Matches++
+		}
+	}
+	fmt.Println(v2Matches)
 }
