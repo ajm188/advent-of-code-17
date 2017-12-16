@@ -101,6 +101,13 @@ func readMoves(lines []string) ([]Move, error) {
 	return moves, nil
 }
 
+func dance(programs []string, moves []Move) []string {
+	for _, move := range moves {
+		programs = move.Execute(programs)
+	}
+	return programs
+}
+
 func main() {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -117,5 +124,5 @@ func main() {
 	for _, move := range moves {
 		programs = move.Execute(programs)
 	}
-	fmt.Println(programs)
+	fmt.Println(strings.Join(programs, ""))
 }
