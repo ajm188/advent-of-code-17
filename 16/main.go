@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+const (
+	DANCES = 1000000000
+)
+
 type Move interface {
 	Execute([]string) []string
 }
@@ -121,8 +125,27 @@ func main() {
 	}
 
 	programs := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"}
-	for _, move := range moves {
-		programs = move.Execute(programs)
+	dancingPrograms := dance(programs, moves)
+	fmt.Println(strings.Join(dancingPrograms, ""))
+
+	cache := map[string]bool{
+		fmt.Sprintf("%v", programs): true,
+	}
+	for i := 0; i < DANCES; i++ {
+		pStr := fmt.Sprintf("%v", dancingPrograms)
+		if _, seen := cache[pStr]; seen {
+			break
+		} else {
+			cache[pStr] = true
+		}
+		dancingPrograms = dance(dancingPrograms, moves)
+	}
+	loopLength := len(cache)
+	cycles := DANCES / loopLength
+	extra := DANCES - (cycles * loopLength)
+
+	for i := 0; i < extra; i++ {
+		programs = dance(programs, moves)
 	}
 	fmt.Println(strings.Join(programs, ""))
 }
