@@ -39,91 +39,100 @@ func (self *CPU) Value(valueOrRegister string) int {
 }
 
 type Instruction interface {
-	Execute(*CPU)
+	Execute(*CPU) error
 }
 
 type SoundInstruction struct {
 	frequency string
 }
 
-func (self *SoundInstruction) Execute(cpu *CPU) {
+func (self *SoundInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	cpu.f = cpu.Value(self.frequency)
+	return nil
 }
 
 type SetInstruction struct {
 	register, val string
 }
 
-func (self *SetInstruction) Execute(cpu *CPU) {
+func (self *SetInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	cpu.registers[self.register] = cpu.Value(self.val)
+	return nil
 }
 
 type AddInstruction struct {
 	register, val string
 }
 
-func (self *AddInstruction) Execute(cpu *CPU) {
+func (self *AddInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	cpu.registers[self.register] = cpu.Get(self.register) + cpu.Value(self.val)
+	return nil
 }
 
 type MultiplyInstruction struct {
 	register, val string
 }
 
-func (self *MultiplyInstruction) Execute(cpu *CPU) {
+func (self *MultiplyInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	cpu.registers[self.register] = cpu.Get(self.register) * cpu.Value(self.val)
+	return nil
 }
 
 type ModuloInstruction struct {
 	register, val string
 }
 
-func (self *ModuloInstruction) Execute(cpu *CPU) {
+func (self *ModuloInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	cpu.registers[self.register] = cpu.Get(self.register) % cpu.Value(self.val)
+	return nil
 }
 
 type RecoverInstruction struct {
 	val string
 }
 
-func (self *RecoverInstruction) Execute(cpu *CPU) {
+func (self *RecoverInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	val := cpu.Value(self.val)
 	if val != 0 {
-		panic(fmt.Sprintf("RECOVERED: %d\n", cpu.f))
+		return fmt.Errorf("RECOVERED: %d\n", cpu.f)
 	}
+	return nil
 }
 
 type BranchInstruction struct {
 	register, offset string
 }
 
-func (self *BranchInstruction) Execute(cpu *CPU) {
+func (self *BranchInstruction) Execute(cpu *CPU) error {
 	jump := cpu.Value(self.offset)
 	if cpu.Get(self.register) > 0 {
 		cpu.pc += jump
 	} else {
 		cpu.pc++
 	}
+	return nil
 }
 
 type SendInstruction struct {
 	val string
 }
 
-func (self *SendInstruction) Execute(cpu *CPU) {
+func (self *SendInstruction) Execute(cpu *CPU) error {
+	return nil
 }
 
 type ReceiveInstruction struct {
 	register string
 }
 
-func (self *ReceiveInstruction) Execute(cpu *CPU) {
+func (self *ReceiveInstruction) Execute(cpu *CPU) error {
+	return nil
 }
 
 func readInstruction(line string, version int) (Instruction, error) {
@@ -184,6 +193,9 @@ func main() {
 		if cpu.pc < 0 || cpu.pc > len(instructions) {
 			break
 		}
-		instructions[cpu.pc].Execute(cpu)
+		if err := instructions[cpu.pc].Execute(cpu); err != nil {
+			fmt.Println(err)
+			break
+		}
 	}
 }
