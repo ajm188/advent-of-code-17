@@ -100,7 +100,7 @@ func (self *RecoverInstruction) Execute(cpu *CPU) error {
 	cpu.pc++
 	val := cpu.Value(self.val)
 	if val != 0 {
-		return fmt.Errorf("RECOVERED: %d\n", cpu.f)
+		return fmt.Errorf("RECOVERED: %d", cpu.f)
 	}
 	return nil
 }
