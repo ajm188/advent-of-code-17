@@ -21,18 +21,6 @@ func NewCPU() *CPU {
 	}
 }
 
-func (self *CPU) Step() *CPU {
-	registers := make(map[string]int, len(self.registers))
-	for k, v := range self.registers {
-		registers[k] = v
-	}
-	return &CPU{
-		registers: registers,
-		pc:        self.pc + 1,
-		f:         self.f,
-	}
-}
-
 func (self *CPU) Get(register string) int {
 	if v, set := self.registers[register]; set {
 		return v
@@ -51,83 +39,77 @@ func (self *CPU) Value(valueOrRegister string) int {
 }
 
 type Instruction interface {
-	Execute(*CPU) *CPU
+	Execute(*CPU)
 }
 
 type SoundInstruction struct {
 	frequency string
 }
 
-func (self *SoundInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	next.f = next.Value(self.frequency)
-	return next
+func (self *SoundInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	cpu.f = cpu.Value(self.frequency)
 }
 
 type SetInstruction struct {
 	register, val string
 }
 
-func (self *SetInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	next.registers[self.register] = next.Value(self.val)
-	return next
+func (self *SetInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	cpu.registers[self.register] = cpu.Value(self.val)
 }
 
 type AddInstruction struct {
 	register, val string
 }
 
-func (self *AddInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	next.registers[self.register] = next.Get(self.register) + next.Value(self.val)
-	return next
+func (self *AddInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	cpu.registers[self.register] = cpu.Get(self.register) + cpu.Value(self.val)
 }
 
 type MultiplyInstruction struct {
 	register, val string
 }
 
-func (self *MultiplyInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	next.registers[self.register] = next.Get(self.register) * next.Value(self.val)
-	return next
+func (self *MultiplyInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	cpu.registers[self.register] = cpu.Get(self.register) * cpu.Value(self.val)
 }
 
 type ModuloInstruction struct {
 	register, val string
 }
 
-func (self *ModuloInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	next.registers[self.register] = next.Get(self.register) % next.Value(self.val)
-	return next
+func (self *ModuloInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	cpu.registers[self.register] = cpu.Get(self.register) % cpu.Value(self.val)
 }
 
 type RecoverInstruction struct {
 	val string
 }
 
-func (self *RecoverInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	val := next.Value(self.val)
+func (self *RecoverInstruction) Execute(cpu *CPU) {
+	cpu.pc++
+	val := cpu.Value(self.val)
 	if val != 0 {
-		fmt.Printf("RECOVERED: %d\n", next.f)
+		panic(fmt.Sprintf("RECOVERED: %d\n", cpu.f))
 	}
-	return next
 }
 
 type BranchInstruction struct {
 	register, offset string
 }
 
-func (self *BranchInstruction) Execute(cpu *CPU) *CPU {
-	next := cpu.Step()
-	jump := next.Value(self.offset) - 1
-	if next.Get(self.register) > 0 {
-		next.pc += jump
+func (self *BranchInstruction) Execute(cpu *CPU) {
+	jump := cpu.Value(self.offset)
+	if cpu.Get(self.register) > 0 {
+		cpu.pc += jump
+	} else {
+		cpu.pc++
 	}
-	return next
 }
 
 func readInstruction(line string) (Instruction, error) {
@@ -185,7 +167,6 @@ func main() {
 		if cpu.pc < 0 || cpu.pc > len(instructions) {
 			break
 		}
-		instr := instructions[cpu.pc]
-		cpu = instr.Execute(cpu)
+		instructions[cpu.pc].Execute(cpu)
 	}
 }
