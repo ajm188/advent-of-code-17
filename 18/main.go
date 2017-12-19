@@ -112,7 +112,7 @@ func (self *BranchInstruction) Execute(cpu *CPU) {
 	}
 }
 
-func readInstruction(line string) (Instruction, error) {
+func readInstruction(line string, version int) (Instruction, error) {
 	fields := strings.Fields(line)
 	switch fields[0] {
 	case "snd":
@@ -134,10 +134,10 @@ func readInstruction(line string) (Instruction, error) {
 	}
 }
 
-func readInstructions(lines []string) ([]Instruction, error) {
+func readInstructions(lines []string, version int) ([]Instruction, error) {
 	instructions := make([]Instruction, len(lines))
 	for i, line := range lines {
-		instr, err := readInstruction(line)
+		instr, err := readInstruction(line, version)
 		if err != nil {
 			return instructions, err
 		}
@@ -152,12 +152,9 @@ func main() {
 		panic(err)
 	}
 
-	instructions, err := readInstructions(
-		strings.FieldsFunc(
-			string(input),
-			func(r rune) bool { return r == '\n' },
-		),
-	)
+	instructionLines := strings.FieldsFunc(string(input), func(r rune) bool { return r == '\n' })
+
+	instructions, err := readInstructions(instructionLines, 1)
 	if err != nil {
 		panic(err)
 	}
