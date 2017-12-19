@@ -56,12 +56,13 @@ func (self Point) Right() Point {
 	}
 }
 
-func navigate(grid [][]byte) []byte {
+func navigate(grid [][]byte) ([]byte, int) {
 	letters := make([]byte, 0)
 	current := Point{strings.IndexByte(string(grid[0]), byte('|')), 0}
 
 	visited := map[Point]bool{}
 	direction := DOWN
+	steps := 0
 	for {
 		visited[current] = true
 		stop := false
@@ -77,9 +78,11 @@ func navigate(grid [][]byte) []byte {
 		}
 		if stop {
 			break
+		} else {
+			steps++
 		}
 	}
-	return letters
+	return letters, steps
 }
 
 func continueAlongPath(grid [][]byte, current Point, direction Direction) (next Point, stop bool) {
@@ -211,5 +214,7 @@ func main() {
 	}
 
 	maze := asMaze(string(input))
-	fmt.Println(string(navigate(maze)))
+	letters, steps := navigate(maze)
+	fmt.Println(string(letters))
+	fmt.Println(steps)
 }
