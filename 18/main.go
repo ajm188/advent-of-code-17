@@ -112,10 +112,27 @@ func (self *BranchInstruction) Execute(cpu *CPU) {
 	}
 }
 
+type SendInstruction struct {
+	val string
+}
+
+func (self *SendInstruction) Execute(cpu *CPU) {
+}
+
+type ReceiveInstruction struct {
+	register string
+}
+
+func (self *ReceiveInstruction) Execute(cpu *CPU) {
+}
+
 func readInstruction(line string, version int) (Instruction, error) {
 	fields := strings.Fields(line)
 	switch fields[0] {
 	case "snd":
+		if version == 2 {
+			return &SendInstruction{fields[1]}, nil
+		}
 		return &SoundInstruction{fields[1]}, nil
 	case "set":
 		return &SetInstruction{fields[1], fields[2]}, nil
@@ -126,6 +143,9 @@ func readInstruction(line string, version int) (Instruction, error) {
 	case "mod":
 		return &ModuloInstruction{fields[1], fields[2]}, nil
 	case "rcv":
+		if version == 2 {
+			return &ReceiveInstruction{fields[1]}, nil
+		}
 		return &RecoverInstruction{fields[1]}, nil
 	case "jgz":
 		return &BranchInstruction{fields[1], fields[2]}, nil
