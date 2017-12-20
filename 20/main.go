@@ -22,6 +22,24 @@ type Particle struct {
 	Acceleration
 }
 
+func (self *Particle) Step() *Particle {
+	velocity := Velocity{
+		X: self.Velocity.X + self.Acceleration.X,
+		Y: self.Velocity.Y + self.Acceleration.Y,
+		Z: self.Velocity.Z + self.Acceleration.Z,
+	}
+	position := Position{
+		X: self.Position.X + velocity.X,
+		Y: self.Position.Y + velocity.Y,
+		Z: self.Position.Z + velocity.Z,
+	}
+	return &Particle{
+		Position:     position,
+		Velocity:     velocity,
+		Acceleration: self.Acceleration,
+	}
+}
+
 func readTuple(tuple string) (x, y, z int, err error) {
 	err = nil
 	x, y, z = 0, 0, 0
@@ -116,4 +134,37 @@ func main() {
 	}
 
 	fmt.Println(closest)
+
+	// In an ideal world, I would check the lines at each step to see if
+	// there is any possibility of intersection, but instead I just ran
+	// this for a long time until the length of the particle list seemed to
+	// stabilize. Oh well.
+	done := false
+	for !done {
+		fmt.Println(len(particles))
+		positionBuckets := map[Position][]int{}
+		for i, particle := range particles {
+			if bucket, ok := positionBuckets[particle.Position]; ok {
+				positionBuckets[particle.Position] = append(bucket, i)
+			} else {
+				positionBuckets[particle.Position] = []int{i}
+			}
+		}
+
+		ids := map[int]bool{}
+		for _, bucket := range positionBuckets {
+			if len(bucket) > 1 {
+				for _, id := range bucket {
+					ids[id] = true
+				}
+			}
+		}
+		tmp := make([]*Particle, 0, len(particles)-len(ids))
+		for i, particle := range particles {
+			if _, ok := ids[i]; !ok {
+				tmp = append(tmp, particle.Step())
+			}
+		}
+		particles = tmp
+	}
 }
