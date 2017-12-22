@@ -87,6 +87,27 @@ func (self *Carrier) Infect(grid map[Point]NodeState) (infection bool) {
 	return
 }
 
+func (self *Carrier) EvolvedInfect(grid map[Point]NodeState) (infection bool) {
+	state, ok := grid[self.Point]
+	if !ok {
+		state = CLEAN
+	}
+	switch state {
+	case CLEAN:
+		self.TurnLeft()
+	case INFECTED:
+		self.TurnRight()
+	case FLAGGED:
+		// turn 180 the lazy way
+		self.TurnRight()
+		self.TurnRight()
+	}
+	grid[self.Point] = (state + 1) % 4
+	infection = grid[self.Point] == INFECTED
+	self.Move()
+	return
+}
+
 func (self *Carrier) TurnLeft() {
 	if self.Direction == UP {
 		self.Direction = LEFT
@@ -142,6 +163,16 @@ func main() {
 	infections := 0
 	for i := 0; i < 10000; i++ {
 		if carrier.Infect(grid) {
+			infections++
+		}
+	}
+	fmt.Println(infections)
+
+	grid = constructGrid(bytes.FieldsFunc(input, func(r rune) bool { return r == '\n' }))
+	evolvedCarrier := NewCarrier()
+	infections = 0
+	for i := 0; i < 10000000; i++ {
+		if evolvedCarrier.EvolvedInfect(grid) {
 			infections++
 		}
 	}
