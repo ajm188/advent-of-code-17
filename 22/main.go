@@ -7,6 +7,15 @@ import (
 	"os"
 )
 
+type NodeState int
+
+const (
+	CLEAN NodeState = iota
+	WEAKENED
+	INFECTED
+	FLAGGED
+)
+
 type Direction int
 
 const (
@@ -60,15 +69,20 @@ func NewCarrier() *Carrier {
 	}
 }
 
-func (self *Carrier) Infect(grid map[Point]bool) (infection bool) {
-	if infected, ok := grid[self.Point]; !ok || !infected {
-		self.TurnLeft()
-		grid[self.Point] = true
-	} else {
-		self.TurnRight()
-		grid[self.Point] = false
+func (self *Carrier) Infect(grid map[Point]NodeState) (infection bool) {
+	state, ok := grid[self.Point]
+	if !ok {
+		state = CLEAN
 	}
-	infection = grid[self.Point]
+	switch state {
+	case CLEAN:
+		self.TurnLeft()
+		grid[self.Point] = INFECTED
+	case INFECTED:
+		self.TurnRight()
+		grid[self.Point] = CLEAN
+	}
+	infection = grid[self.Point] == INFECTED
 	self.Move()
 	return
 }
@@ -100,18 +114,18 @@ func (self *Carrier) Move() {
 	self.Point = point
 }
 
-func constructGrid(matrix [][]byte) map[Point]bool {
-	grid := map[Point]bool{}
+func constructGrid(matrix [][]byte) map[Point]NodeState {
+	grid := map[Point]NodeState{}
 	xOff, yOff := len(matrix[0])/2, len(matrix)/2
 	for i := yOff; i >= -yOff; i-- {
 		for j := -xOff; j <= xOff; j++ {
 			point := Point{X: j, Y: i}
 			x, y := j+xOff, (-i)+yOff
-			infected := false
+			state := CLEAN
 			if matrix[y][x] == byte('#') {
-				infected = true
+				state = INFECTED
 			}
-			grid[point] = infected
+			grid[point] = state
 		}
 	}
 	return grid
